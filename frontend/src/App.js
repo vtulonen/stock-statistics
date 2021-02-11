@@ -1,7 +1,10 @@
-import React from "react";
+import React from 'react'
+import CSVReader from './Components/CSVReader'
 
 const App = () => {
-  return <div>Hello</div>
+  return <div>
+    <CSVReader />
+  </div>
 }
 
 export default App
