@@ -18,4 +18,9 @@ stockDataRouter.post('/', async (request, response, next) => {
   response.status(201).json(savedData.toJSON())
 })
 
+stockDataRouter.delete('/:id', async (request, response, next) => {
+  await StockData.findByIdAndRemove(request.params.id)
+  response.status(204).end()
+})
+
 module.exports = stockDataRouter
