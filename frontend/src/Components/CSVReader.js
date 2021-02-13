@@ -1,13 +1,20 @@
 import React, { Component } from 'react'
 import { CSVReader } from 'react-papaparse'
+import axios from 'axios'
 
 export default class CSVReaderDragAndDrop extends Component {
-  handleOnDrop = (data) => {
-    console.log(data)
-    console.log(data[0])
-    console.log(data[0].data)
-    console.log(data[0].data.Date)
+  handleOnDrop = async (data) => {
+    // TODO: validate csv
+    // if valid do:
+    const quoteArray = data.map((item) => item.data)
+    const stockData = {
+      code: 'testcode', // change to user input later
+      quotes: quoteArray,
+    }
     
+    console.log(stockData)
+    const response = await axios.post('/api/stockData', stockData)
+    return response.data
   }
 
   handleOnError = (err, file, inputElem, reason) => {
@@ -30,7 +37,8 @@ export default class CSVReaderDragAndDrop extends Component {
           config={{
             header: true,
             //Transform keys and values to strings w/o whitespace
-            transformHeader: (value) => value.trim().replace('/', '').toLowerCase(),
+            transformHeader: (value) =>
+              value.trim().replace('/', '').toLowerCase(),
             transform: (value) => value.trim().replace('$', ''),
           }}
         >
