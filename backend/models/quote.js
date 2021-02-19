@@ -7,6 +7,10 @@ const quoteSchema = mongoose.Schema({
   open: { type: Number },
   high: { type: Number },
   low: { type: Number },
+  importedCSV: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'ImportedCSV'
+  }
 })
 
 quoteSchema.set('toJSON', {
@@ -17,7 +21,4 @@ quoteSchema.set('toJSON', {
   },
 })
 
-module.exports = {
-  quoteSchema: quoteSchema,
-  Quote: mongoose.model('Quote', quoteSchema),
-}
+module.exports = mongoose.model('Quote', quoteSchema)

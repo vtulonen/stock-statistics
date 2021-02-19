@@ -1,1 +1,0 @@
-DELETE http://localhost:3003/api/stockData/602791bbae4d2b14270ae912
