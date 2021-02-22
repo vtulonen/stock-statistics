@@ -14,7 +14,7 @@ export default class CSVReaderDragAndDrop extends Component {
   render() {
     return (
       <>
-        <h5>Click and Drag Upload</h5>
+        <h3>Upload your CSV file to begin</h3>
         <CSVReader
           onDrop={this.props.handleUpload}
           onError={this.handleOnError}
