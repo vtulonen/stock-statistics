@@ -10,16 +10,18 @@ quotesRouter.get('/', async (request, response) => {
 })
 
 setQuotes = async (quoteIds, csvId) => {
-  const csv = await ImportedCSV.findByIdAndUpdate(csvId, {
+  const response = await ImportedCSV.findByIdAndUpdate(csvId, {
     $addToSet: { quotes: quoteIds },
   })
 }
 // Post
 quotesRouter.post('/', async (request, response) => {
+
   const { quotes, csvId } = request.body
+  
   const savedQuotes = await Quote.insertMany(quotes, (err, docs) => {
-    const quoteIds = docs.map((x) => x.id)
-    setQuotes(quoteIds, csvId)
+    const quoteIds = docs.map((x) => x._id)
+   setQuotes(quoteIds, csvId)
   })
   response.json(savedQuotes)
 })
