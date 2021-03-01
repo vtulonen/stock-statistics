@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 
 const importedCSVSchema = mongoose.Schema({
   code: { type: String },
+  dateRange: [Date],
   quotes: [
     {
       type: mongoose.Schema.Types.ObjectId,

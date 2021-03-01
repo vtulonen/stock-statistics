@@ -18,6 +18,7 @@ importedCSVRouter.post('/', async (request, response, next) => {
   const body = request.body
   const importedCSV = new ImportedCSV({
     code: body.code,
+    dateRange: body.dateRange
   })
 
   const savedData = await importedCSV.save()
