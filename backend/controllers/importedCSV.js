@@ -4,13 +4,13 @@ const ImportedCSV = require('../models/importedCSV')
 // Get all data
 importedCSVRouter.get('/', async (request, response, next) => {
   const importedCSV = await ImportedCSV.find({})
-  response.json(importedCSV)
+  response.status(200).json(importedCSV)
 })
 
 // Quotes by csv id
 importedCSVRouter.get('/:id/quotes', async (request, response, next) => {
   const importedCSV = await ImportedCSV.findById(request.params.id).populate('quotes')
-  response.json(importedCSV)
+  response.status(200).json(importedCSV)
 })
 
 // Post stockdata (formatted csv)

@@ -6,7 +6,7 @@ const helpers = require('../utils/helpers')
 //All quotes
 quotesRouter.get('/', async (request, response) => {
   const quotes = await Quote.find({})
-  response.json(quotes.map((x) => x.toJSON()))
+  response.status(200).json(quotes.map((x) => x.toJSON()))
 })
 
 setQuotes = async (quoteIds, csvId) => {
@@ -22,7 +22,7 @@ quotesRouter.post('/', async (request, response) => {
     const quoteIds = docs.map((x) => x._id)
     setQuotes(quoteIds, csvId)
   })
-  response.json(savedQuotes)
+  response.status(201).json(savedQuotes)
 })
 
 // Csv ids quotes withing date range, ascending order
@@ -37,7 +37,7 @@ quotesRouter.get('/csv/:id/', async (request, response) => {
       $lte: endDate,
     },
   }).sort({ date: 'asc' })
-  response.json(quotes.map((x) => x.toJSON()))
+  response.status(200).json(quotes.map((x) => x.toJSON()))
 })
 
 quotesRouter.get('/csv/:id/bullish', async (request, response) => {
@@ -54,7 +54,7 @@ quotesRouter.get('/csv/:id/bullish', async (request, response) => {
 
   const bullish = helpers.countBullish(quotes)
 
-  response.json(bullish)
+  response.status(200).json(bullish)
 })
 
 quotesRouter.get('/csv/:id/volume-priceChange', async (request, response) => {
@@ -69,7 +69,7 @@ quotesRouter.get('/csv/:id/volume-priceChange', async (request, response) => {
     },
   }).sort({ highLowDiff: 'desc', volume: 'desc' })
 
-  response.json(quotes)
+  response.status(200).json(quotes)
 })
 
 module.exports = quotesRouter
