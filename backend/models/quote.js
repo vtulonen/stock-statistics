@@ -13,7 +13,13 @@ const quoteSchema = mongoose.Schema({
   }
 })
 
+quoteSchema.virtual('highLowDiff').get(function() {
+  const diff = Math.abs(this.high - this.low)
+  return Math.round((diff + Number.EPSILON) * 100) / 100
+})
+
 quoteSchema.set('toJSON', {
+  virtuals: true,
   transform: (doc, obj) => {
     obj.id = obj._id
     delete obj._id

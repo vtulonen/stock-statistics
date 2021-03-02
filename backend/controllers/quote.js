@@ -16,12 +16,11 @@ setQuotes = async (quoteIds, csvId) => {
 }
 // Post
 quotesRouter.post('/', async (request, response) => {
-
   const { quotes, csvId } = request.body
-  
+
   const savedQuotes = await Quote.insertMany(quotes, (err, docs) => {
     const quoteIds = docs.map((x) => x._id)
-   setQuotes(quoteIds, csvId)
+    setQuotes(quoteIds, csvId)
   })
   response.json(savedQuotes)
 })
@@ -56,6 +55,21 @@ quotesRouter.get('/csv/:id/bullish', async (request, response) => {
   const bullish = helpers.countBullish(quotes)
 
   response.json(bullish)
+})
+
+quotesRouter.get('/csv/:id/volume-priceChange', async (request, response) => {
+  const { start, end } = request.query
+  const startDate = new Date(start)
+  const endDate = new Date(end)
+  const quotes = await Quote.find({
+    importedCSV: request.params.id,
+    date: {
+      $gte: startDate,
+      $lte: endDate,
+    },
+  }).sort({ highLowDiff: 'desc', volume: 'desc' })
+
+  response.json(quotes)
 })
 
 module.exports = quotesRouter
