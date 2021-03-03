@@ -1,0 +1,1 @@
+GET http://localhost:3003/api/quotes/csv/603d400c90c1ce2adfe790b5/bestOpening/?start=2021-01-10T22:00:00.000Z&end=2021-01-19T22:00:00.000Z

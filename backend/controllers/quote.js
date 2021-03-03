@@ -72,4 +72,41 @@ quotesRouter.get('/csv/:id/volume-priceChange', async (request, response) => {
   response.status(200).json(quotes)
 })
 
+quotesRouter.get('/csv/:id/bestOpening', async (request, response) => {
+  const { start, end } = request.query
+  const startDate = new Date(start)
+  const endDate = new Date(end)
+
+  const quotes = await Quote.find({
+    importedCSV: request.params.id,
+    date: {
+      $gte: startDate,
+      $lte: endDate,
+    },
+  }).sort({ date: 'asc' })
+
+  const previousFour = await Quote.find({ _id: { $gt: quotes[0].id } })
+    .sort({ _id: 'asc' })
+    .limit(4)
+
+  const quoteOriginalLength = quotes.length
+  const openingPrices = quotes.map((quote) => quote.open)
+
+  //Concat previous four to calculate sma
+  const allQuotes = previousFour.concat(quotes)
+  const closePrices = allQuotes.map((quote) => quote.closelast)
+
+  let SMAs = helpers.countSMA(closePrices)
+  while (SMAs.length != quoteOriginalLength) SMAs.shift() //remove previous ones
+
+  const bestOpening = quotes.map((quote, i) => ({
+    date: quote.date,
+    percentageChange: helpers.percentageChange(openingPrices[i], SMAs[i]),
+  }))
+
+  bestOpening.sort((a, b) => b.percentageChange - a.percentageChange) // sort highest first
+
+  response.status(200).json(bestOpening)
+})
+
 module.exports = quotesRouter

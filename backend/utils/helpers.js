@@ -43,6 +43,35 @@ const countBullish = (quotes) => {
   return result
 }
 
+const countSum = (numArray) => {
+  return numArray.reduce((acc, val) => acc + val, 0)
+}
+
+const roundTwoDec = (num) => {
+  return Math.round((num + Number.EPSILON) * 100) / 100
+}
+
+const countSMA = (numbers, period = 5) => {
+  let data = []
+  let smaArray = []
+  numbers.forEach((num, i) => {
+    data.push(num)
+    if (i >= period) data.shift()
+    smaArray.push(countSum(data) / period)
+  })
+
+  return smaArray
+}
+
+const percentageChange = (a, b) => {
+  return roundTwoDec(((a - b) / b) * 100)
+}
+
+
+
 module.exports = {
   countBullish,
+  countSMA,
+  percentageChange,
+  roundTwoDec
 }
