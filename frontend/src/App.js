@@ -19,8 +19,9 @@ const App = () => {
     // if valid do:
     const quotesArray = data.map((item) => item.data)
     const firstDate = new Date(quotesArray[quotesArray.length - 1].date)
-    const lastDate = new Date(quotesArray[0].date)
-
+    let lastDate = new Date(quotesArray[0].date)
+    lastDate.setHours(23,59,59)
+    
     setQuotes(quotesArray)
     setStockDateRange([firstDate, lastDate])
     setDateRange([firstDate, lastDate])
@@ -31,6 +32,7 @@ const App = () => {
 
   const handleDateChange = (dates) => {
     if (dates === null) return
+    console.log('dates', dates)
     setDateRange(dates)
     setStartDate(dates[0].toISOString().split('T')[0])
     setEndDate(dates[1].toISOString().split('T')[0])
@@ -48,30 +50,9 @@ const App = () => {
     setDocumentID(null)
   }
 
-  const getBullish = async () => {
-    const response = await axios.get(
-      `/api/quotes/csv/${documentID}/bullish/?start=${startDate}&end=${endDate}`
-    )
-    const days = response.data.days
-    const start = new Date(response.data.between[0])
-    const end = new Date(response.data.between[1])
-    setBullish(
-      `Longest bullish trend: ${days} days between ${start.toDateString()} and ${end.toDateString()}`
-    )
-    return response.data
-  }
-
-  const getVolumePriceChange = async () => {
-    const response = await axios.get(
-      `/api/quotes/csv/${documentID}/volume-priceChange/?start=${startDate}&end=${endDate}`
-    )
-    console.log(response.data)
-    return response.data
-  }
-
   const submitCSV = async () => {
     const stockData = {
-      code: 'EXAMPLE',
+      code: 'USERUPLOAD',
       quotes: [],
       dateRange: stockDateRange,
     }
@@ -96,13 +77,48 @@ const App = () => {
     setShowSubmit(false)
   }
 
+  const getBullish = async () => {
+    const response = await axios.get(
+      `/api/quotes/csv/${documentID}/bullish/?start=${startDate}&end=${endDate}`
+    )
+    const days = response.data.days
+    const start = new Date(response.data.between[0])
+    const end = new Date(response.data.between[1])
+    console.log(response.data)
+    setBullish(
+      `Longest bullish trend: ${days} days between ${start.toDateString()} and ${end.toDateString()}`
+    )
+    return response.data
+  }
+
+  const getVolumePriceChange = async () => {
+    const response = await axios.get(
+      `/api/quotes/csv/${documentID}/volume-priceChange/?start=${startDate}&end=${endDate}`
+    )
+    console.log(response.data)
+    return response.data
+  }
+
+  const getBestOpening = async () => {
+    const response = await axios.get(
+      `/api/quotes/csv/${documentID}/bestOpening/?start=${startDate}&end=${endDate}`
+    )
+    console.log(response.data)
+    return response.data
+  }
+
+  const analyze = async () => {
+    getBullish()
+    getVolumePriceChange()
+    getBestOpening()
+  }
+
   return (
-    <div className="page-container">
-      <button className="btn date-container__analyze" onClick={getVolumePriceChange}>priceChange</button>
-      <CSVReader handleUpload={handleUpload} handleRemove={handleRemove}/>
+    <div className='page-container'>
+      <CSVReader handleUpload={handleUpload} handleRemove={handleRemove} />
       {showSubmit && <button onClick={submitCSV}>Submit</button>}
       {documentID !== null && (
-        <div className="date-container">
+        <div className='date-container'>
           <DateRangePicker
             onChange={handleDateChange}
             value={dateRange}
@@ -110,8 +126,11 @@ const App = () => {
             maxDate={stockDateRange[1]}
             clearIcon={null}
           />
-          <button className="btn date-container__analyze" onClick={getBullish}>Analyze</button>
-          
+         
+          <button className='btn date-container__analyze' onClick={analyze}>
+            Analyze
+          </button>
+          <button onClick={() => {console.log('daterange', dateRange, 'stockdr', stockDateRange)}}></button>
         </div>
       )}
       {bullish !== null && <p>{bullish}</p>}
