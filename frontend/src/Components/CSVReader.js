@@ -19,7 +19,7 @@ export default class CSVReaderDragAndDrop extends Component {
           onDrop={this.props.handleUpload}
           onError={this.handleOnError}
           addRemoveButton
-          onRemoveFile={this.handleOnRemoveFile}
+          onRemoveFile={this.props.handleRemove}
           config={{
             skipEmptyLines: true,
             header: true,

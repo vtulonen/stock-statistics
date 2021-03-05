@@ -31,15 +31,24 @@ const App = () => {
 
   const handleDateChange = (dates) => {
     if (dates === null) return
-    console.log('dates', dates)
     setDateRange(dates)
-
     setStartDate(dates[0].toISOString().split('T')[0])
     setEndDate(dates[1].toISOString().split('T')[0])
-    console.log(dates[1].toISOString().split('T')[0])
   }
 
-  const countBullish = async () => {
+  const handleRemove = () => {
+    //Resets states
+    setQuotes(null)
+    setStockDateRange([null])
+    setDateRange([new Date(), new Date()])
+    setStartDate(null)
+    setEndDate(null)
+    setShowSubmit(false)
+    setBullish(null)
+    setDocumentID(null)
+  }
+
+  const getBullish = async () => {
     const response = await axios.get(
       `/api/quotes/csv/${documentID}/bullish/?start=${startDate}&end=${endDate}`
     )
@@ -52,12 +61,23 @@ const App = () => {
     return response.data
   }
 
+  const getVolumePriceChange = async () => {
+    const response = await axios.get(
+      `/api/quotes/csv/${documentID}/volume-priceChange/?start=${startDate}&end=${endDate}`
+    )
+    console.log(response.data)
+    return response.data
+  }
+
   const submitCSV = async () => {
     const stockData = {
       code: 'EXAMPLE',
       quotes: [],
       dateRange: stockDateRange,
     }
+    // remove exisiting data
+    await axios.delete('api/csv')
+
     // post csv data
     const csvResponse = await axios.post('/api/csv', stockData)
     setDocumentID(csvResponse.data.id)
@@ -78,7 +98,8 @@ const App = () => {
 
   return (
     <div className="page-container">
-      <CSVReader handleUpload={handleUpload} />
+      <button className="btn date-container__analyze" onClick={getVolumePriceChange}>priceChange</button>
+      <CSVReader handleUpload={handleUpload} handleRemove={handleRemove}/>
       {showSubmit && <button onClick={submitCSV}>Submit</button>}
       {documentID !== null && (
         <div className="date-container">
@@ -89,7 +110,8 @@ const App = () => {
             maxDate={stockDateRange[1]}
             clearIcon={null}
           />
-          <button className="btn date-container__analyze" onClick={countBullish}>Analyze</button>
+          <button className="btn date-container__analyze" onClick={getBullish}>Analyze</button>
+          
         </div>
       )}
       {bullish !== null && <p>{bullish}</p>}
