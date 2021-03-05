@@ -2,6 +2,7 @@ const quotesRouter = require('express').Router()
 const Quote = require('../models/quote')
 const ImportedCSV = require('../models/importedCSV')
 const helpers = require('../utils/helpers')
+const { findByIdAndDelete } = require('../models/quote')
 
 //All quotes
 quotesRouter.get('/', async (request, response) => {

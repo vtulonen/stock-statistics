@@ -1,1 +1,1 @@
-GET http://localhost:3003/api/quotes/csv/602e35974151857e6bed9336/?start=2021-01-10T22:00:00.000Z&end=2021-01-19T22:00:00.000Z
+GET http://localhost:3003/api/quotes/csv/603d141472a0be21d46e7769/?start=2021-01-10T22:00:00.000Z&end=2021-01-19T22:00:00.000Z

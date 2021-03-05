@@ -1,5 +1,6 @@
 const importedCSVRouter = require('express').Router()
 const ImportedCSV = require('../models/importedCSV')
+const Quote = require('../models/quote')
 
 // Get all data
 importedCSVRouter.get('/', async (request, response, next) => {
@@ -25,9 +26,19 @@ importedCSVRouter.post('/', async (request, response, next) => {
   response.status(201).json(savedData.toJSON())
 })
 
-// Delete
+// Delete all csvs and quotes
+importedCSVRouter.delete('/', async (request, response, next) => {
+  await ImportedCSV.deleteMany();
+  await Quote.deleteMany();
+  response.status(204).end()
+})
+
+// Delete csv + quotes by csv id
 importedCSVRouter.delete('/:id', async (request, response, next) => {
-  await ImportedCSV.findByIdAndRemove(request.params.id)
+  const csvToDelete = await ImportedCSV.findById(request.params.id)
+  if (csvToDelete == null) return response.status(400).json({error: 'invalid id'})
+  await ImportedCSV.findOneAndRemove(request.params.id)
+  await Quote.deleteMany({importedCSV: request.params.id})
   response.status(204).end()
 })
 

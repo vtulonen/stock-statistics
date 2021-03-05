@@ -18,6 +18,11 @@ quoteSchema.virtual('highLowDiff').get(function() {
   return Math.round((diff + Number.EPSILON) * 100) / 100
 })
 
+quoteSchema.pre("deleteMany", async (next) => {
+  console.log('before deletemany');
+  next()
+})
+
 quoteSchema.set('toJSON', {
   virtuals: true,
   transform: (doc, obj) => {
