@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import CSVReader from './Components/CSVReader'
 import DateRangePicker from '@wojtekmaj/react-daterange-picker'
+import Table from './Components/Table'
 import axios from 'axios'
 
 const App = () => {
@@ -11,6 +12,8 @@ const App = () => {
   const [quotes, setQuotes] = useState([])
   const [stockDateRange, setStockDateRange] = useState(null)
   const [bullish, setBullish] = useState(null)
+  const [volumePriceChange, setVolumePriceChange] = useState(null)
+  const [bestOpening, setBestOpening] = useState(null)
   const [showSubmit, setShowSubmit] = useState(false)
 
   const handleUpload = async (data) => {
@@ -20,8 +23,8 @@ const App = () => {
     const quotesArray = data.map((item) => item.data)
     const firstDate = new Date(quotesArray[quotesArray.length - 1].date)
     let lastDate = new Date(quotesArray[0].date)
-    lastDate.setHours(23,59,59)
-    
+    lastDate.setHours(23, 59, 59)
+
     setQuotes(quotesArray)
     setStockDateRange([firstDate, lastDate])
     setDateRange([firstDate, lastDate])
@@ -47,6 +50,8 @@ const App = () => {
     setEndDate(null)
     setShowSubmit(false)
     setBullish(null)
+    setBestOpening(null)
+    setVolumePriceChange(null)
     setDocumentID(null)
   }
 
@@ -96,6 +101,7 @@ const App = () => {
       `/api/quotes/csv/${documentID}/volume-priceChange/?start=${startDate}&end=${endDate}`
     )
     console.log(response.data)
+    setVolumePriceChange(response.data)
     return response.data
   }
 
@@ -104,6 +110,7 @@ const App = () => {
       `/api/quotes/csv/${documentID}/bestOpening/?start=${startDate}&end=${endDate}`
     )
     console.log(response.data)
+    setBestOpening(response.data)
     return response.data
   }
 
@@ -120,20 +127,63 @@ const App = () => {
       {documentID !== null && (
         <div className='date-container'>
           <DateRangePicker
+            format={'MM/dd/y'}
             onChange={handleDateChange}
             value={dateRange}
             minDate={stockDateRange[0]}
             maxDate={stockDateRange[1]}
             clearIcon={null}
           />
-         
+
           <button className='btn date-container__analyze' onClick={analyze}>
             Analyze
           </button>
-          <button onClick={() => {console.log('daterange', dateRange, 'stockdr', stockDateRange)}}></button>
+          <button
+            onClick={() => {
+              console.log('daterange', dateRange, 'stockdr', stockDateRange)
+            }}
+          ></button>
         </div>
       )}
-      {bullish !== null && <p>{bullish}</p>}
+      {bullish !== null && <div className="bullish">{bullish}</div>}
+      <div className='tables-container'>
+        {volumePriceChange !== null && (
+          <Table
+            title={'Highest trading volume and price change'}
+            data={volumePriceChange}
+            columns={[
+              {
+                Header: 'Date',
+                accessor: 'date',
+              },
+              {
+                Header: 'Volume',
+                accessor: 'volume',
+              },
+              {
+                Header: 'Price Change $',
+                accessor: 'highLowDiff',
+              },
+            ]}
+          />
+        )}
+        {bestOpening !== null && (
+          <Table
+            title={'Best opening price compared to SMA5'}
+            data={bestOpening}
+            columns={[
+              {
+                Header: 'Date',
+                accessor: 'date',
+              },
+              {
+                Header: 'Price Change %',
+                accessor: 'percentageChange',
+              },
+            ]}
+          />
+        )}
+      </div>
     </div>
   )
 }

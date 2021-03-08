@@ -23,5 +23,45 @@ code {
   margin: 0 auto;
 }
 
+.date-container {
+  align-self: center;
+}
 
+.bullish {
+  align-self: center;
+}
 
+.tables-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+table {
+  margin: 1rem;
+  background: rgb(250, 250, 250);
+}
+
+.table-title {
+  text-align: center;
+}
+
+tr:nth-child(even) {
+  background: rgb(200, 200, 200);
+}
+
+tbody {
+  background: rgb(250, 250, 250);
+}
+
+td {
+  text-align: center;
+  padding: 0.5rem 1rem;
+}
+
+.pagination {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
