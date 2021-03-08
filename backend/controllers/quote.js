@@ -51,7 +51,7 @@ quotesRouter.get('/csv/:id/bullish', async (request, response) => {
       $gte: startDate,
       $lte: endDate,
     },
-  }).sort({ date: 'asc' })
+  }).sort({ date: 'asc' }).lean()
 
   const bullish = helpers.countBullish(quotes)
 
@@ -62,13 +62,18 @@ quotesRouter.get('/csv/:id/volume-priceChange', async (request, response) => {
   const { start, end } = request.query
   const startDate = new Date(start)
   const endDate = new Date(end)
-  const quotes = await Quote.find({
+  let quotes = await Quote.find({
     importedCSV: request.params.id,
     date: {
       $gte: startDate,
       $lte: endDate,
     },
   }).sort({ highLowDiff: 'desc', volume: 'desc' })
+  quotes = JSON.parse(JSON.stringify(quotes)) // mongoose object to object
+  
+  quotes.forEach((quote) => {
+    quote.date = helpers.formatUTCDate(quote.date)
+  })
 
   response.status(200).json(quotes)
 })
@@ -78,7 +83,7 @@ quotesRouter.get('/csv/:id/bestOpening', async (request, response) => {
   const startDate = new Date(start)
   const endDate = new Date(end)
 
-  const quotes = await Quote.find({
+  let quotes = await Quote.find({
     importedCSV: request.params.id,
     date: {
       $gte: startDate,
@@ -86,9 +91,16 @@ quotesRouter.get('/csv/:id/bestOpening', async (request, response) => {
     },
   }).sort({ date: 'asc' })
 
+  quotes = JSON.parse(JSON.stringify(quotes)) // mongoose object to object
+
+  quotes.forEach((quote) => {
+    quote.date = helpers.formatUTCDate(quote.date)
+  })
+
   const previousFour = await Quote.find({ _id: { $gt: quotes[0].id } })
     .sort({ _id: 'asc' })
     .limit(4)
+    
 
   const quoteOriginalLength = quotes.length
   const openingPrices = quotes.map((quote) => quote.open)
@@ -102,7 +114,7 @@ quotesRouter.get('/csv/:id/bestOpening', async (request, response) => {
 
   const bestOpening = quotes.map((quote, i) => ({
     date: quote.date,
-    percentageChange: helpers.percentageChange(openingPrices[i], SMAs[i]),
+    percentageChange: (previousFour.length < 4 && i < 4) ? "n/a" : helpers.percentageChange(openingPrices[i], SMAs[i]),
   }))
 
   bestOpening.sort((a, b) => b.percentageChange - a.percentageChange) // sort highest first

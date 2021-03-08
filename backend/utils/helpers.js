@@ -15,8 +15,6 @@ const countBullish = (quotes) => {
   let prevPrice = 0
 
   closePrices.forEach((price, i) => {
-    console.log(price, '    ', prevPrice)
-    console.log(price > prevPrice)
     if (i == 0) {
       prevPrice = price
       return
@@ -38,7 +36,7 @@ const countBullish = (quotes) => {
 
   const result = {
     days: bullish,
-    between: [startDate, endDate],
+    between: [formatUTCDate(startDate), formatUTCDate(endDate)],
   }
   return result
 }
@@ -67,11 +65,21 @@ const percentageChange = (a, b) => {
   return roundTwoDec(((a - b) / b) * 100)
 }
 
+const formatUTCDate = (date) => {
+  let formatted = new Date(date.toString()).toISOString().split('T')[0].split('-').reverse() // utc to local w/o timezone, array
+  let temp = formatted[0]
+  formatted[0] = formatted[1] // swap month and date
+  formatted[1] = temp
+
+  return formatted.join('/') // final format mm/dd/yyyy
+}
+
 
 
 module.exports = {
   countBullish,
   countSMA,
   percentageChange,
-  roundTwoDec
+  roundTwoDec,
+  formatUTCDate
 }
