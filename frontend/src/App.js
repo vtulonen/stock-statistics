@@ -6,18 +6,21 @@ import axios from 'axios'
 
 const App = () => {
   const [dateRange, setDateRange] = useState([new Date(), new Date()])
-  const [startDate, setStartDate] = useState(null)
-  const [endDate, setEndDate] = useState(null)
+  const [dateRangeString, setDateRangeString] = useState(null)
+  const [minMaxDates, setMinMaxDates] = useState(null)
   const [documentID, setDocumentID] = useState(null)
   const [quotes, setQuotes] = useState([])
-  const [stockDateRange, setStockDateRange] = useState(null)
   const [bullish, setBullish] = useState(null)
   const [volumePriceChange, setVolumePriceChange] = useState(null)
   const [bestOpening, setBestOpening] = useState(null)
   const [showSubmit, setShowSubmit] = useState(false)
 
   const handleUpload = async (data) => {
-    console.log(data)
+    data.forEach((item) => {
+      // format date to yyyy-mm-dd
+      item.data.date = dateToString(new Date(item.data.date))
+    })
+
     // TODO: validate csv
     // if valid do:
     const quotesArray = data.map((item) => item.data)
@@ -26,28 +29,30 @@ const App = () => {
     lastDate.setHours(23, 59, 59)
 
     setQuotes(quotesArray)
-    setStockDateRange([firstDate, lastDate])
     setDateRange([firstDate, lastDate])
-    setStartDate(firstDate.toISOString().split('T')[0])
-    setEndDate(lastDate.toISOString().split('T')[0])
+    setMinMaxDates([firstDate, lastDate])
+    setDateRangeString([dateToString(firstDate), dateToString(lastDate)])
     setShowSubmit(true)
   }
 
   const handleDateChange = (dates) => {
     if (dates === null) return
-    console.log('dates', dates)
     setDateRange(dates)
-    setStartDate(dates[0].toISOString().split('T')[0])
-    setEndDate(dates[1].toISOString().split('T')[0])
+    setDateRangeString([dateToString(dates[0]), dateToString(dates[1])])
+  }
+
+  const dateToString = (date) => {
+    return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+      .toISOString()
+      .split('T')[0]
   }
 
   const handleRemove = () => {
     //Resets states
     setQuotes(null)
-    setStockDateRange([null])
     setDateRange([new Date(), new Date()])
-    setStartDate(null)
-    setEndDate(null)
+    setDateRangeString(null)
+    setMinMaxDates(null)
     setShowSubmit(false)
     setBullish(null)
     setBestOpening(null)
@@ -59,7 +64,7 @@ const App = () => {
     const stockData = {
       code: 'USERUPLOAD',
       quotes: [],
-      dateRange: stockDateRange,
+      dateRange: dateRangeString,
     }
     // remove exisiting data
     await axios.delete('api/csv')
@@ -79,26 +84,28 @@ const App = () => {
       quotes: updatedQuotes,
       csvId: csvResponse.data.id,
     })
+
     setShowSubmit(false)
   }
 
   const getBullish = async () => {
+    console.log(dateRangeString)
     const response = await axios.get(
-      `/api/quotes/csv/${documentID}/bullish/?start=${startDate}&end=${endDate}`
+      `/api/quotes/csv/${documentID}/bullish/?start=${dateRangeString[0]}&end=${dateRangeString[1]}`
     )
     const days = response.data.days
-    const start = new Date(response.data.between[0])
-    const end = new Date(response.data.between[1])
+    const start = response.data.between[0]
+    const end = response.data.between[1]
     console.log(response.data)
     setBullish(
-      `Longest bullish trend: ${days} days between ${start.toDateString()} and ${end.toDateString()}`
+      `Longest bullish trend: ${days} days between ${start} and ${end}`
     )
     return response.data
   }
 
   const getVolumePriceChange = async () => {
     const response = await axios.get(
-      `/api/quotes/csv/${documentID}/volume-priceChange/?start=${startDate}&end=${endDate}`
+      `/api/quotes/csv/${documentID}/volume-priceChange/?start=${dateRangeString[0]}&end=${dateRangeString[1]}`
     )
     console.log(response.data)
     setVolumePriceChange(response.data)
@@ -107,7 +114,7 @@ const App = () => {
 
   const getBestOpening = async () => {
     const response = await axios.get(
-      `/api/quotes/csv/${documentID}/bestOpening/?start=${startDate}&end=${endDate}`
+      `/api/quotes/csv/${documentID}/bestOpening/?start=${dateRangeString[0]}&end=${dateRangeString[1]}`
     )
     console.log(response.data)
     setBestOpening(response.data)
@@ -130,22 +137,17 @@ const App = () => {
             format={'MM/dd/y'}
             onChange={handleDateChange}
             value={dateRange}
-            minDate={stockDateRange[0]}
-            maxDate={stockDateRange[1]}
+            minDate={minMaxDates[0]}
+            maxDate={minMaxDates[1]}
             clearIcon={null}
           />
 
           <button className='btn date-container__analyze' onClick={analyze}>
             Analyze
           </button>
-          <button
-            onClick={() => {
-              console.log('daterange', dateRange, 'stockdr', stockDateRange)
-            }}
-          ></button>
         </div>
       )}
-      {bullish !== null && <div className="bullish">{bullish}</div>}
+      {bullish !== null && <div className='bullish'>{bullish}</div>}
       <div className='tables-container'>
         {volumePriceChange !== null && (
           <Table
