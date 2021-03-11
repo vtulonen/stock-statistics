@@ -3,6 +3,7 @@ import CSVReader from './Components/CSVReader'
 import DateRangePicker from '@wojtekmaj/react-daterange-picker'
 import Table from './Components/Table'
 import axios from 'axios'
+import Header from './Components/Header'
 
 const App = () => {
   const [dateRange, setDateRange] = useState([new Date(), new Date()])
@@ -93,13 +94,8 @@ const App = () => {
     const response = await axios.get(
       `/api/quotes/csv/${documentID}/bullish/?start=${dateRangeString[0]}&end=${dateRangeString[1]}`
     )
-    const days = response.data.days
-    const start = response.data.between[0]
-    const end = response.data.between[1]
-    console.log(response.data)
-    setBullish(
-      `Longest bullish trend: ${days} days between ${start} and ${end}`
-    )
+
+    setBullish(response.data)
     return response.data
   }
 
@@ -129,63 +125,83 @@ const App = () => {
 
   return (
     <div className='page-container'>
-      <CSVReader handleUpload={handleUpload} handleRemove={handleRemove} />
-      {showSubmit && <button onClick={submitCSV}>Submit</button>}
-      {documentID !== null && (
-        <div className='date-container'>
-          <DateRangePicker
-            format={'MM/dd/y'}
-            onChange={handleDateChange}
-            value={dateRange}
-            minDate={minMaxDates[0]}
-            maxDate={minMaxDates[1]}
-            clearIcon={null}
-          />
-
-          <button className='btn date-container__analyze' onClick={analyze}>
-            Analyze
-          </button>
+      <Header
+        title='Stock Analyzer'
+        text='Analyze a CSV file containing stock quote data to get detailed information about the stock'
+      />
+      <main>
+        <div className='csv-reader-container'>
+          <CSVReader handleUpload={handleUpload} handleRemove={handleRemove} />
+          {showSubmit && (
+            <button className='btn-submit' onClick={submitCSV}>
+              Submit
+            </button>
+          )}
         </div>
-      )}
-      {bullish !== null && <div className='bullish'>{bullish}</div>}
-      <div className='tables-container'>
-        {volumePriceChange !== null && (
-          <Table
-            title={'Highest trading volume and price change'}
-            data={volumePriceChange}
-            columns={[
-              {
-                Header: 'Date',
-                accessor: 'date',
-              },
-              {
-                Header: 'Volume',
-                accessor: 'volume',
-              },
-              {
-                Header: 'Price Change $',
-                accessor: 'highLowDiff',
-              },
-            ]}
-          />
+
+        {documentID !== null && (
+          <div className='date-container'>
+            <DateRangePicker
+              format={'MM/dd/yyyy'}
+              onChange={handleDateChange}
+              value={dateRange}
+              minDate={minMaxDates[0]}
+              maxDate={minMaxDates[1]}
+              clearIcon={null}
+            />
+
+            <button className='btn-analyze' onClick={analyze}>
+              Analyze
+            </button>
+          </div>
         )}
-        {bestOpening !== null && (
-          <Table
-            title={'Best opening price compared to SMA5'}
-            data={bestOpening}
-            columns={[
-              {
-                Header: 'Date',
-                accessor: 'date',
-              },
-              {
-                Header: 'Price Change %',
-                accessor: 'percentageChange',
-              },
-            ]}
-          />
+        {bullish !== null && (
+          <div className='bullish'>
+            <p>
+              Longest Bullish Trend: <em>{bullish.days}</em> days between{' '}
+              <em>{bullish.between[0]}</em> and <em>{bullish.between[1]}</em>
+            </p>
+          </div>
         )}
-      </div>
+        <div className='tables-container'>
+          {volumePriceChange !== null && (
+            <Table
+              title={'Highest trading volume and price change'}
+              data={volumePriceChange}
+              columns={[
+                {
+                  Header: 'Volume',
+                  accessor: 'volume',
+                },
+                {
+                  Header: 'Price Change $',
+                  accessor: 'highLowDiff',
+                },
+                {
+                  Header: 'Date',
+                  accessor: 'date',
+                },
+              ]}
+            />
+          )}
+          {bestOpening !== null && (
+            <Table
+              title={'Best opening price compared to SMA5'}
+              data={bestOpening}
+              columns={[
+                {
+                  Header: 'Price Change %',
+                  accessor: 'percentageChange',
+                },
+                {
+                  Header: 'Date',
+                  accessor: 'date',
+                },
+              ]}
+            />
+          )}
+        </div>
+      </main>
     </div>
   )
 }

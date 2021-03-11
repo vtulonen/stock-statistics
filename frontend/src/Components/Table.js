@@ -54,29 +54,31 @@ const Table = ({ data, columns, title }) => {
         </tbody>
       </table>
 
-      <div className='pagination'>
-        <div>
-          {pageIndex + 1} / {pageOptions.length}
-        </div>
+      {pageOptions.length > 1 && (
+        <div className='pagination'>
+          <div>
+            {pageIndex + 1} / {pageOptions.length}
+          </div>
 
-        <div className='pagination__controls'>
-          <button onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
-            {'<<'}
-          </button>
-          <button onClick={() => previousPage()} disabled={!canPreviousPage}>
-            {'<'}
-          </button>
-          <button onClick={() => nextPage()} disabled={!canNextPage}>
-            {'>'}
-          </button>
-          <button
-            onClick={() => gotoPage(pageCount - 1)}
-            disabled={!canNextPage}
-          >
-            {'>>'}
-          </button>
+          <div className='pagination__controls'>
+            <button onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
+              {'<<'}
+            </button>
+            <button onClick={() => previousPage()} disabled={!canPreviousPage}>
+              {'<'}
+            </button>
+            <button onClick={() => nextPage()} disabled={!canNextPage}>
+              {'>'}
+            </button>
+            <button
+              onClick={() => gotoPage(pageCount - 1)}
+              disabled={!canNextPage}
+            >
+              {'>>'}
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
