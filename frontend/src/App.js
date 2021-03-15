@@ -4,6 +4,7 @@ import DateRangePicker from '@wojtekmaj/react-daterange-picker'
 import Table from './Components/Table'
 import axios from 'axios'
 import Header from './Components/Header'
+axios.defaults.baseURL = process.env.REACT_APP_API_ENDPOINT
 
 const App = () => {
   const [dateRange, setDateRange] = useState([new Date(), new Date()])
