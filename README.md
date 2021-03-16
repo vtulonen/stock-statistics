@@ -1,5 +1,7 @@
 # Stock-Statistics
 
+App reads a csv file containing stock quotes and analyzes it withing given date range
+
 ## LIVE PREVIEW
 
 ## https://stock-statistics-frontend.herokuapp.com/
