@@ -35,8 +35,6 @@ const App = () => {
       item.data.date = dateToString(new Date(item.data.date))
     })
 
-    // TODO: validate csv
-    // if valid do:
     const quotesArray = data.map((item) => item.data)
     const firstDate = new Date(quotesArray[quotesArray.length - 1].date)
     let lastDate = new Date(quotesArray[0].date)
