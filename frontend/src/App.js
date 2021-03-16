@@ -4,6 +4,7 @@ import DateRangePicker from '@wojtekmaj/react-daterange-picker'
 import Table from './Components/Table'
 import axios from 'axios'
 import Header from './Components/Header'
+import Notification from './Components/Notification'
 import config from './config'
 axios.defaults.baseURL = config.REACT_APP_API_ENDPOINT
 
@@ -17,6 +18,16 @@ const App = () => {
   const [volumePriceChange, setVolumePriceChange] = useState(null)
   const [bestOpening, setBestOpening] = useState(null)
   const [showSubmit, setShowSubmit] = useState(false)
+  const [message, setMessage] = useState(null)
+  const [messageType, setMessageType] = useState('error')
+
+  const displayNotification = (type, text) => {
+    setMessageType(type)
+    setMessage(text)
+    setTimeout(() => {
+      setMessage(null)
+    }, 6000)
+  }
 
   const handleUpload = async (data) => {
     data.forEach((item) => {
@@ -92,7 +103,6 @@ const App = () => {
   }
 
   const getBullish = async () => {
-    console.log(dateRangeString)
     const response = await axios.get(
       `/api/quotes/csv/${documentID}/bullish/?start=${dateRangeString[0]}&end=${dateRangeString[1]}`
     )
@@ -105,7 +115,6 @@ const App = () => {
     const response = await axios.get(
       `/api/quotes/csv/${documentID}/volume-priceChange/?start=${dateRangeString[0]}&end=${dateRangeString[1]}`
     )
-    console.log(response.data)
     setVolumePriceChange(response.data)
     return response.data
   }
@@ -114,7 +123,6 @@ const App = () => {
     const response = await axios.get(
       `/api/quotes/csv/${documentID}/bestOpening/?start=${dateRangeString[0]}&end=${dateRangeString[1]}`
     )
-    console.log(response.data)
     setBestOpening(response.data)
     return response.data
   }
@@ -132,8 +140,13 @@ const App = () => {
         text='Analyze a CSV file containing stock quote data to get detailed information about the stock'
       />
       <main>
+        <Notification type={messageType} message={message} />
         <div className='csv-reader-container'>
-          <CSVReader handleUpload={handleUpload} handleRemove={handleRemove} />
+          <CSVReader
+            handleUpload={handleUpload}
+            handleRemove={handleRemove}
+            displayNotification={displayNotification}
+          />
           {showSubmit && (
             <button className='btn-submit' onClick={submitCSV}>
               Submit
